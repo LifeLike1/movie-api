@@ -4,49 +4,44 @@ import { validateZod } from "@/middlewares/zodValidate.middleware";
 import {
   createPersonSchema,
   deletePersonSchema,
+  getSinglePersonSchema,
   updateSinglePersonSchema,
 } from "@/schemas/person.schema";
+import { Routing } from "@/types/Routing";
+import { Person } from "@prisma/client";
 
-class PersonRoutes {
-  private api;
-  private personController;
-
-  constructor() {
-    this.api = Router();
-    this.personController = new PersonController();
-    this.initializeRoutes();
+class PersonRoutes extends Routing<Person> {
+  constructor(entityRouter: Router, controller: PersonController) {
+    super(entityRouter, controller);
   }
 
-  private initializeRoutes() {
-    this.api.get("/", this.personController.getAll.bind(this.personController));
+  protected initializeRoutes() {
+    this.router.get("/", this.controller.getAll.bind(this.controller));
 
-    this.api.get(
+    this.router.get(
       "/:id",
-      this.personController.getOne.bind(this.personController)
+      validateZod(getSinglePersonSchema),
+      this.controller.getOne.bind(this.controller)
     );
 
-    this.api.post(
+    this.router.post(
       "/",
       validateZod(createPersonSchema),
-      this.personController.create.bind(this.personController)
+      this.controller.create.bind(this.controller)
     );
 
-    this.api.put(
+    this.router.put(
       "/:id",
       validateZod(updateSinglePersonSchema),
-      this.personController.update.bind(this.personController)
+      this.controller.update.bind(this.controller)
     );
 
-    this.api.delete(
+    this.router.delete(
       "/:id",
       validateZod(deletePersonSchema),
-      this.personController.delete.bind(this.personController)
+      this.controller.delete.bind(this.controller)
     );
-  }
-
-  public getRoutes() {
-    return this.api;
   }
 }
 
-export default new PersonRoutes();
+export default PersonRoutes;

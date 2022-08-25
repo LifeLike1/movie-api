@@ -9,11 +9,11 @@ datasource db {
 
 model Person {
   id           Int          @id @default(autoincrement())
-  firstName    String
-  lastName     String
+  firstName    String       @db.VarChar(60)
+  lastName     String       @db.VarChar(80)
   birthDate    DateTime
-  nationality  String
-  imageUrl     String
+  nationality  String       @db.VarChar(56)
+  imageUrl     String       
   updatedAt    DateTime     @updatedAt
   createdAt    DateTime     @default(now())
   moviesActors MovieActor[]
@@ -22,8 +22,8 @@ model Person {
 
 model Movie {
   id           Int          @id @default(autoincrement())
-  title        String
-  description  String
+  title        String       @db.VarChar(80)
+  description  String       
   realeaseDate DateTime
   rating       Float
   imageUrl     String
