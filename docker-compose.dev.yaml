@@ -7,13 +7,10 @@ services:
       dockerfile: Dockerfile.dev
       context: .
     environment:
-      BACKEND_PORT: "5001"
-      PGHOST: "postgres"
-      PGPORT: "5433"
-      PGDATABASE: "postgres"
-      PGUSER: "postgres"
-      PGPASSWORD: "qwerty123"
-    command: sh -c './wait-for postgres:5433 -- yarn run dev'
+      BACKEND_PORT: ${BACKEND_PORT}
+    command: sh -c './wait-for postgres:${PG_PORT} -- yarn run start'
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     volumes:
       - /app/node_modules
       - ./:/app
@@ -24,11 +21,11 @@ services:
     restart: always
     image: "postgres"
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "qwerty123"
-      POSTGRES_DB: "postgres"
-      PGPORT: "5433"
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
+      PGPORT: ${PG_PORT}
     ports:
-      - "5433:5433"
+      - ${PG_PORT}:${PG_PORT}
     volumes:
       - ./pgData:/var/lib/postgresql/data

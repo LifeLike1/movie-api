@@ -12,9 +12,11 @@
     "nodemon": "^2.0.19",
     "prisma": "^4.2.1",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.7.0",
     "typescript": "^4.7.4"
   },
   "scripts": {
-    "dev": "nodemon ./src/index.ts --legacy-watch --watch src"
+    "build": "prisma generate && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "start": "yarn run build && node ./dist/index.js"
   }
 }
