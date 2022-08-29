@@ -7,12 +7,15 @@ import {
   getSinglePersonSchema,
   updateSinglePersonSchema,
 } from "@/schemas/person.schema";
-import { Routing } from "@/types/Routing";
-import { Person } from "@prisma/client";
 
-class PersonRoutes extends Routing<Person> {
-  constructor(entityRouter: Router, controller: PersonController) {
-    super(entityRouter, controller);
+class PersonRoutes {
+  private router: Router;
+  private controller: PersonController;
+
+  constructor(router: Router, controller: PersonController) {
+    this.router = router;
+    this.controller = controller;
+    this.initializeRoutes();
   }
 
   protected initializeRoutes() {
@@ -41,6 +44,10 @@ class PersonRoutes extends Routing<Person> {
       validateZod(deletePersonSchema),
       this.controller.delete.bind(this.controller)
     );
+  }
+
+  public getRoutes() {
+    return this.router;
   }
 }
 

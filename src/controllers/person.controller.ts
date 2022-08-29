@@ -4,33 +4,25 @@ import {
 } from "@/types/person.types";
 import { NextFunction, Request, Response } from "express";
 import { HttpStatuses } from "@/lib/httpStatuses";
-import { Controller } from "@/types/Controller";
-import { Person } from "@prisma/client";
 import PersonService from "@/services/person.service";
 
-class PersonController extends Controller<Person> {
+class PersonController {
+  private readonly service: PersonService;
+
   constructor(service: PersonService) {
-    super(service);
+    this.service = service;
   }
 
-  async getAll(
-    _: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void> {
+  async getAll(_: Request, res: Response, next: NextFunction) {
     try {
-      const people = await this.service.getAll();
+      const people = await this.service.getAllPeople();
       return res.status(HttpStatuses.OK).json({ data: people });
     } catch (error) {
       next(error);
     }
   }
 
-  async getOne(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void> {
+  async getOne(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     if (!id) {
       return res
@@ -38,7 +30,7 @@ class PersonController extends Controller<Person> {
         .json({ message: "Missing id" });
     }
     try {
-      const person = await this.service.getOne({ id: Number(id) });
+      const person = await this.service.getSinglePerson({ id: Number(id) });
       if (person === null) {
         return res
           .status(HttpStatuses.NOT_FOUND)
@@ -54,9 +46,9 @@ class PersonController extends Controller<Person> {
     req: Request<any, any, CreatePersonInput>,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void> {
+  ) {
     try {
-      const person = await this.service.create(req.body);
+      const person = await this.service.createPerson(req.body);
       return res.status(HttpStatuses.CREATED).json({ data: person });
     } catch (error) {
       next(error);
@@ -67,7 +59,7 @@ class PersonController extends Controller<Person> {
     req: Request<any, any, UpdateSinglePersonInput["body"]>,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void> {
+  ) {
     const { id } = req.params;
     if (!id) {
       return res
@@ -75,7 +67,7 @@ class PersonController extends Controller<Person> {
         .json({ message: "Missing id" });
     }
     try {
-      const person = await this.service.update({
+      const person = await this.service.updatePerson({
         body: { ...req.body, birthDate: new Date(req.body.birthDate) },
         params: { id },
       });
@@ -85,11 +77,7 @@ class PersonController extends Controller<Person> {
     }
   }
 
-  async delete(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void> {
+  async delete(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     if (!id) {
       return res
@@ -97,7 +85,7 @@ class PersonController extends Controller<Person> {
         .json({ message: "Missing id" });
     }
     try {
-      const person = await this.service.delete({ id: Number(id) });
+      const person = await this.service.deletePerson({ id: Number(id) });
       return res.status(HttpStatuses.OK).json({ data: person });
     } catch (error) {
       next(error);

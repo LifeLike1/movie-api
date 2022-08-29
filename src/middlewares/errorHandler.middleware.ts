@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+} from "@prisma/client/runtime";
 import { HttpStatuses } from "@/lib/httpStatuses";
 
 export const errorHandler = (
@@ -17,11 +20,24 @@ export const errorHandler = (
     });
   }
   if (error instanceof PrismaClientKnownRequestError) {
+    if (error.code === "P2003") {
+      return res.status(HttpStatuses.BAD_REQUEST).json({
+        code: error.code,
+        message: "Cannot find foreign key",
+        meta: error.meta,
+      });
+    }
     return res.status(HttpStatuses.BAD_REQUEST).json({
       code: error.code,
-      message: error.meta?.cause || error.message,
+      message: error.message,
+      meta: error.meta,
     });
   }
-
-  return res.status(HttpStatuses.INTERNAL_SERVER_ERROR).json(error);
+  if (error instanceof PrismaClientInitializationError) {
+    return res.status(HttpStatuses.INTERNAL_SERVER_ERROR).json({
+      code: "DB_ERROR",
+      message: "Database connection information is incorrect",
+    });
+  }
+  return res.status(HttpStatuses.INTERNAL_SERVER_ERROR).json({ error });
 };

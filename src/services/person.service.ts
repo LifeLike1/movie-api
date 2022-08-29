@@ -5,21 +5,22 @@ import {
   GetSinglePersonInput,
   UpdateSinglePersonInput,
 } from "@/types/person.types";
-import { Service } from "@/types/Service";
 import { Person } from "@prisma/client";
 
-class PersonService extends Service<Person> {
+class PersonService {
+  private readonly database: DatabaseInstance;
+
   constructor(database: DatabaseInstance) {
-    super(database);
+    this.database = database;
   }
 
-  async getAll(): Promise<Person[]> {
+  async getAllPeople() {
     const people = await this.database.getConnection().person.findMany();
     return people;
   }
 
-  async getOne(input: GetSinglePersonInput): Promise<Person | null> {
-    const user = await this.database.getConnection().person.findFirst({
+  async getSinglePerson(input: GetSinglePersonInput) {
+    const user = await this.database.getConnection().person.findFirstOrThrow({
       where: {
         id: Number(input.id),
       },
@@ -27,7 +28,7 @@ class PersonService extends Service<Person> {
     return user;
   }
 
-  async create(input: CreatePersonInput): Promise<Person> {
+  async createPerson(input: CreatePersonInput) {
     const user = await this.database.getConnection().person.create({
       data: {
         ...input,
@@ -37,7 +38,7 @@ class PersonService extends Service<Person> {
     return user;
   }
 
-  async update(input: UpdateSinglePersonInput): Promise<Person> {
+  async updatePerson(input: UpdateSinglePersonInput) {
     const user = await this.database.getConnection().person.update({
       data: input.body,
       where: {
@@ -47,7 +48,7 @@ class PersonService extends Service<Person> {
     return user;
   }
 
-  async delete(input: DeletePersonInput): Promise<Person> {
+  async deletePerson(input: DeletePersonInput) {
     const user = await this.database.getConnection().person.delete({
       where: {
         id: input.id,

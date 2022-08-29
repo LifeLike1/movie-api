@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { zodParseId } from "@/lib/ZodParseId";
+import { zodParseDate } from "@/lib/ZodParseDate";
 
 export const createPersonSchema = z.object({
   body: z.object({
@@ -15,17 +17,15 @@ export const createPersonSchema = z.object({
         invalid_type_error: "Last name must be a string",
       })
       .min(1)
-      .max(60),
-    birthDate: z
-      .preprocess((a) => new Date(z.string().parse(a)), z.date())
-      .transform((a) => new Date(a)),
+      .max(80),
+    birthDate: zodParseDate,
     nationality: z
       .string({
         required_error: "Nationality is required",
         invalid_type_error: "Nationality must be a string",
       })
       .min(1)
-      .max(60),
+      .max(56),
     imageUrl: z.string({
       required_error: "Image url is required",
       invalid_type_error: "Image url must be a link",
@@ -33,21 +33,14 @@ export const createPersonSchema = z.object({
   }),
 });
 
-const zodId = z.object({
+const zodIdInParams = z.object({
   params: z.object({
-    id: z
-      .string()
-      .refine((s) => {
-        const n = Number(s);
-
-        return Number.isFinite(n) && !Number.isNaN(n) && n > 0 && n % 1 === 0;
-      })
-      .transform(Number),
+    id: zodParseId,
   }),
 });
 
-export const deletePersonSchema = zodId;
+export const deletePersonSchema = zodIdInParams;
 
-export const getSinglePersonSchema = zodId;
+export const getSinglePersonSchema = zodIdInParams;
 
-export const updateSinglePersonSchema = createPersonSchema.merge(zodId);
+export const updateSinglePersonSchema = createPersonSchema.merge(zodIdInParams);

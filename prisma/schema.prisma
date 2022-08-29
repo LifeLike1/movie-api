@@ -13,7 +13,7 @@ model Person {
   lastName     String       @db.VarChar(80)
   birthDate    DateTime
   nationality  String       @db.VarChar(56)
-  imageUrl     String       
+  imageUrl     String
   updatedAt    DateTime     @updatedAt
   createdAt    DateTime     @default(now())
   moviesActors MovieActor[]
@@ -22,9 +22,9 @@ model Person {
 
 model Movie {
   id           Int          @id @default(autoincrement())
-  title        String       @db.VarChar(80)
-  description  String       
-  realeaseDate DateTime
+  title        String       @unique @db.VarChar(150)
+  description  String       @db.VarChar(500)
+  releaseDate DateTime
   rating       Float
   imageUrl     String
   updatedAt    DateTime     @updatedAt
