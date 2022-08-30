@@ -35,7 +35,7 @@ export const createPersonSchema = z.object({
 
 const zodIdInParams = z.object({
   params: z.object({
-    id: zodParseId,
+    id: zodParseId(),
   }),
 });
 

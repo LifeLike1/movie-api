@@ -3,6 +3,7 @@ import { HttpStatuses } from "@/lib/httpStatuses";
 import { Prisma } from "@prisma/client";
 import MovieService from "@/services/movie.service";
 import { PatchMovieDirectorInput } from "@/types/movie.types";
+import { PaginatedMovies } from "@/types/PaginatedMovie";
 
 class MovieController {
   private readonly service: MovieService;
@@ -13,8 +14,38 @@ class MovieController {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const movies = await this.service.getAllMovies(req.query);
-      return res.status(HttpStatuses.OK).json({ data: movies });
+      const { totalMovieCount, movies, nextPage, previousPage } =
+        await this.service.getAllMovies({
+          ...req.query,
+          page: Number(req.query.page),
+        });
+
+      const returnMovies: PaginatedMovies = {
+        data: movies,
+        info: {
+          count: totalMovieCount,
+          next: null,
+          previous: null,
+        },
+      };
+
+      if (nextPage) {
+        const url = new URL(
+          `${req.protocol}://${req.get("host")}${req.originalUrl}`
+        );
+        url.searchParams.set("page", nextPage.toString());
+        returnMovies.info.next = url.toString();
+      }
+
+      if (previousPage) {
+        const url = new URL(
+          `${req.protocol}://${req.get("host")}${req.originalUrl}`
+        );
+        url.searchParams.set("page", previousPage.toString());
+        returnMovies.info.previous = url.toString();
+      }
+
+      return res.status(HttpStatuses.OK).json(returnMovies);
     } catch (error) {
       next(error);
     }
@@ -29,11 +60,6 @@ class MovieController {
     }
     try {
       const movie = await this.service.getSingleMovie({ id: Number(id) });
-      if (movie === null) {
-        return res
-          .status(HttpStatuses.NOT_FOUND)
-          .json({ message: "Movie not found" });
-      }
       return res.status(HttpStatuses.OK).json({ data: movie });
     } catch (error) {
       next(error);

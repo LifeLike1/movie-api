@@ -51,7 +51,7 @@ const movieSchema = z.object({
       const regex = new RegExp(urlRegexExpression);
       return s.match(regex);
     }),
-  directorId: zodParseId.optional(),
+  directorId: zodParseId("directorId").optional(),
 });
 
 export const createMovieSchema = z.object({
@@ -60,23 +60,23 @@ export const createMovieSchema = z.object({
 
 const zodIdInParams = z.object({
   params: z.object({
-    id: zodParseId,
+    id: zodParseId(),
   }),
 });
 
 const zodIdInBodyDirector = z.object({
   body: z.object({
-    directorId: zodParseId,
+    directorId: zodParseId("directorId"),
   }),
 });
 
 const zodIdInParamsMovie = z.object({
-  params: z.object({ movieId: zodParseId }),
+  params: z.object({ movieId: zodParseId("movieId") }),
 });
 
 const zodIdInBodyActor = z.object({
   body: z.object({
-    actorId: zodParseId,
+    actorId: zodParseId("actorId"),
   }),
 });
 
@@ -99,6 +99,7 @@ export const getAllMoviesSchemaSortSchema = z.object({
   query: z.object({
     sortBy: movieKeys.optional(),
     order: sortOrder.optional(),
+    page: zodParseId("page").optional(),
   }),
 });
 

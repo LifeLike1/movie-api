@@ -15,13 +15,34 @@ class MovieService {
     this.database = database;
   }
 
-  async getAllMovies({ sortBy, order }: GetAllMoviesSortInput) {
-    const movies = await this.database.getConnection().movie.findMany({
-      orderBy: {
-        [sortBy ?? "createdAt"]: order ?? "asc",
-      },
-    });
-    return movies;
+  async getAllMovies({ sortBy, order, page }: GetAllMoviesSortInput) {
+    const moviesTransaction = await this.database.getConnection().$transaction([
+      this.database.getConnection().movie.count(),
+      this.database.getConnection().movie.findMany({
+        orderBy: {
+          [sortBy ?? "createdAt"]: order ?? "asc",
+        },
+        skip: page ? (page - 1) * 10 : 0,
+        take: 10,
+      }),
+    ]);
+
+    const [totalMovieCount, movies] = moviesTransaction;
+
+    const maxPage = Math.ceil(totalMovieCount / 10);
+
+    const nextPage = page
+      ? totalMovieCount > page * 10
+        ? page + 1
+        : null
+      : totalMovieCount > 10
+      ? 2
+      : null;
+
+    const previousPage =
+      !page || page === 1 ? null : page > maxPage ? maxPage : page - 1;
+
+    return { totalMovieCount, movies, nextPage, previousPage };
   }
 
   async getSingleMovie(input: GetSingleMovieInput) {
