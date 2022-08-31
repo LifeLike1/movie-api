@@ -3,7 +3,9 @@ import { validateZod } from "@/middlewares/zodValidate.middleware";
 import MovieController from "./../controllers/movie.controller";
 import {
   createMovieSchema,
+  createSingleMovieActorSchema,
   deleteMovieSchema,
+  deleteSingleMovieActorSchema,
   getAllMoviesSchemaSortSchema,
   getSingleMovieSchema,
   patchSingleMovieDirectorSchema,
@@ -39,6 +41,12 @@ class MovieRoutes {
       this.controller.create.bind(this.controller)
     );
 
+    this.router.post(
+      "/:movieId/actors",
+      validateZod(createSingleMovieActorSchema),
+      this.controller.createMovieActor.bind(this.controller)
+    );
+
     this.router.put(
       "/:id",
       validateZod(updateSingleMovieSchema),
@@ -55,6 +63,12 @@ class MovieRoutes {
       "/:id",
       validateZod(deleteMovieSchema),
       this.controller.delete.bind(this.controller)
+    );
+
+    this.router.delete(
+      "/:movieId/actors/:personId",
+      validateZod(deleteSingleMovieActorSchema),
+      this.controller.deleteMovieActor.bind(this.controller)
     );
   }
 

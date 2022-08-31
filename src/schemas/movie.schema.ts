@@ -76,7 +76,7 @@ const zodIdInParamsMovie = z.object({
 
 const zodIdInBodyActor = z.object({
   body: z.object({
-    actorId: zodParseId("actorId"),
+    personId: zodParseId("actorId"),
   }),
 });
 
@@ -114,3 +114,10 @@ export const patchSingleMovieDirectorSchema =
 
 export const createSingleMovieActorSchema =
   zodIdInParamsMovie.merge(zodIdInBodyActor);
+
+export const deleteSingleMovieActorSchema = z.object({
+  params: z.object({
+    personId: zodParseId("personId"),
+    movieId: zodParseId("movieId"),
+  }),
+});

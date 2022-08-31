@@ -56,7 +56,7 @@ class MovieController {
     if (!id) {
       return res
         .status(HttpStatuses.BAD_REQUEST)
-        .json({ message: "Missing id" });
+        .json({ message: "Missing movie id" });
     }
     try {
       const movie = await this.service.getSingleMovie({ id: Number(id) });
@@ -79,6 +79,24 @@ class MovieController {
     }
   }
 
+  async createMovieActor(req: Request, res: Response, next: NextFunction) {
+    const { movieId } = req.params;
+    if (!movieId) {
+      return res
+        .status(HttpStatuses.BAD_REQUEST)
+        .json({ message: "Missing movie id" });
+    }
+    try {
+      const movieActor = await this.service.createMovieActor({
+        body: { ...req.body },
+        params: { movieId: Number(movieId) },
+      });
+      return res.status(HttpStatuses.CREATED).json({ data: movieActor });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async update(
     req: Request<any, any, Prisma.MovieUncheckedUpdateInput>,
     res: Response,
@@ -88,7 +106,7 @@ class MovieController {
     if (!id) {
       return res
         .status(HttpStatuses.BAD_REQUEST)
-        .json({ message: "Missing id" });
+        .json({ message: "Missing movie id" });
     }
     try {
       const movie = await this.service.updateMovie({
@@ -110,14 +128,14 @@ class MovieController {
     if (!id) {
       return res
         .status(HttpStatuses.BAD_REQUEST)
-        .json({ message: "Missing id" });
+        .json({ message: "Missing movie id" });
     }
     try {
-      const person = await this.service.updateMovieDirector({
+      const movie = await this.service.updateMovieDirector({
         body: { ...req.body },
         params: { id },
       });
-      return res.status(HttpStatuses.OK).json({ data: person });
+      return res.status(HttpStatuses.OK).json({ data: movie });
     } catch (error) {
       next(error);
     }
@@ -128,11 +146,34 @@ class MovieController {
     if (!id) {
       return res
         .status(HttpStatuses.BAD_REQUEST)
-        .json({ message: "Missing id" });
+        .json({ message: "Missing movie id" });
     }
     try {
-      const person = await this.service.deleteMovie({ id: Number(id) });
-      return res.status(HttpStatuses.OK).json({ data: person });
+      const movie = await this.service.deleteMovie({ id: Number(id) });
+      return res.status(HttpStatuses.OK).json({ data: movie });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteMovieActor(req: Request, res: Response, next: NextFunction) {
+    const { movieId, personId } = req.params;
+    if (!movieId) {
+      return res
+        .status(HttpStatuses.BAD_REQUEST)
+        .json({ message: "Missing movie id" });
+    }
+    if (!personId) {
+      return res
+        .status(HttpStatuses.BAD_REQUEST)
+        .json({ message: "Missing actor id" });
+    }
+    try {
+      const movieActor = await this.service.deleteMovieActor({
+        movieId: Number(movieId),
+        personId: Number(personId),
+      });
+      return res.status(HttpStatuses.OK).json({ data: movieActor });
     } catch (error) {
       next(error);
     }

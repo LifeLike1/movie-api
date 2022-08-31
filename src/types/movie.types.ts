@@ -4,6 +4,7 @@ import {
   createMovieSchema,
   createSingleMovieActorSchema,
   deleteMovieSchema,
+  deleteSingleMovieActorSchema,
   getAllMoviesSchemaSortSchema,
   patchSingleMovieDirectorSchema,
 } from "@/schemas/movie.schema";
@@ -33,4 +34,8 @@ export type PatchMovieDirectorInput = z.infer<
 
 export type CreateMovieActorInput = z.infer<
   typeof createSingleMovieActorSchema
+>;
+
+export type DeleteMovieActorInput = InferedBody<
+  z.infer<typeof deleteSingleMovieActorSchema>
 >;

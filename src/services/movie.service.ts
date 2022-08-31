@@ -1,5 +1,7 @@
 import DatabaseInstance from "@/lib/DatabaseInstance";
 import {
+  CreateMovieActorInput,
+  DeleteMovieActorInput,
   DeleteMovieInput,
   GetAllMoviesSortInput,
   GetSingleMovieInput,
@@ -52,19 +54,28 @@ class MovieService {
       },
       include: {
         director: true,
-        actors: true,
+        actors: {
+          select: {
+            person: true,
+          },
+        },
       },
     });
     return movie;
   }
 
-  async createMovieActor(input: Prisma.MovieActorUncheckedCreateInput) {
-    const movie = await this.database.getConnection().movieActor.create({
+  async createMovieActor(input: CreateMovieActorInput) {
+    const actor = await this.database.getConnection().movieActor.create({
       data: {
-        ...input,
+        movieId: Number(input.params.movieId),
+        personId: Number(input.body.personId),
+      },
+      include: {
+        movie: true,
+        person: true,
       },
     });
-    return movie;
+    return actor;
   }
 
   async createMovie(input: Prisma.MovieCreateInput) {
@@ -106,6 +117,22 @@ class MovieService {
       },
     });
     return movie;
+  }
+
+  async deleteMovieActor(input: DeleteMovieActorInput) {
+    const actor = await this.database.getConnection().movieActor.delete({
+      where: {
+        movieId_personId: {
+          movieId: Number(input.movieId),
+          personId: Number(input.personId),
+        },
+      },
+      include: {
+        movie: true,
+        person: true,
+      },
+    });
+    return actor;
   }
 }
 
